@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { check } from "express-validator";
 import {
     usersGet,
     usersPut,
@@ -6,16 +7,59 @@ import {
     usersDelete,
     usersPatch,
 } from "../controllers/usersController.js";
+import { isEmail, isRole, isUser } from "../helpers/db-validators.js";
+import { validateFields } from "../middlewares/validate-fields.js";
 
 const usersRouter = new Router();
 
-usersRouter.get("/", usersGet);
+usersRouter.get(
+    "/",
+    [
+        check("limit").optional().isNumeric(),
+        check("from").optional().isNumeric(),
+        validateFields,
+    ],
+    usersGet
+);
 
-usersRouter.put("/:id", usersPut);
+usersRouter.put(
+    "/:id",
+    [
+        check("id", "Not a valid ID").isMongoId(),
+        check("id").custom(isUser),
+        check("role").optional().custom(isRole),
+        validateFields,
+    ],
+    usersPut
+);
 
-usersRouter.post("/", usersPost);
+usersRouter.post(
+    "/",
+    [
+        check("name", "The name is required").not().isEmpty(),
+        check(
+            "password",
+            "The password is must have more than 6 characters"
+        ).isLength({ min: 6 }),
+        check("email", "The email is not a valid format").isEmail(),
+        check("email").custom(isEmail),
+        //check("role", "Not a valid role").isIn(["ADMIN_ROLE", "USER_ROLE"]),
+        check("role", "The Role is required").not().isEmpty(),
+        check("role").custom(isRole),
+        validateFields,
+    ],
+    usersPost
+);
 
-usersRouter.delete("/:id", usersDelete);
+usersRouter.delete(
+    "/:id",
+    [
+        check("id", "Not a valid ID").isMongoId(),
+        check("id").custom(isUser),
+        validateFields,
+    ],
+    usersDelete
+);
 
 usersRouter.patch("/:id", usersPatch);
 
