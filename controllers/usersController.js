@@ -48,6 +48,7 @@ const usersPut = async (req, res = response) => {
 
 const usersDelete = async (req, res = response) => {
     const { id } = req.params;
+    const authenticatedUser = req.authenticatedUser;
 
     // Fisical delete
     //const user = await User.findByIdAndDelete(id);
