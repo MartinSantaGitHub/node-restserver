@@ -37,13 +37,19 @@
 
                 const body = { id_token: response.credential };
 
-                fetch("http://localhost:8005/api/auth/google/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(body),
-                })
+                // Prod: https://restserver-msanta-cafe.herokuapp.com//api/auth/google/
+                // Dev:  http://localhost:8005/api/auth/google/
+
+                fetch(
+                    "https://restserver-msanta-cafe.herokuapp.com//api/auth/google/",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(body),
+                    }
+                )
                     .then((resp) => resp.json())
                     .then((data) => {
                         console.log(data);
