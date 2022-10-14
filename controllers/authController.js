@@ -1,7 +1,8 @@
-import { request, response } from "express";
+import { json, request, response } from "express";
 import { User } from "../models/user.js";
 import bcryptjs from "bcryptjs";
 import { generateJWT } from "../helpers/generate-jwt.js";
+import { googleVerify } from "../helpers/google-verify.js";
 
 const login = async (req = request, res = response) => {
     const { email, password } = req.body;
@@ -49,4 +50,45 @@ const login = async (req = request, res = response) => {
     }
 };
 
-export { login };
+const googleSignIn = async (req, res = response) => {
+    const { id_token } = req.body;
+
+    try {
+        const { email, name, picture } = await googleVerify(id_token);
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            const data = {
+                name,
+                email,
+                password: ":P",
+                picture,
+                isGoogle: true,
+            };
+
+            user = new User(data);
+
+            await user.save();
+        }
+
+        if (!user.isActive) {
+            return res.status(401).json({
+                msg: "The user is not active - Contact the admin",
+            });
+        }
+
+        const token = await generateJWT(user.id);
+
+        res.json({
+            user,
+            token,
+        });
+    } catch (error) {
+        res.status(400).json({
+            ok: false,
+            msg: "Cannot verify the Token",
+        });
+    }
+};
+
+export { login, googleSignIn };
