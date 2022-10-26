@@ -1,3 +1,5 @@
+import { Category } from "../models/category.js";
+import { Product } from "../models/product.js";
 import { Role } from "../models/role.js";
 import { User } from "../models/user.js";
 
@@ -25,4 +27,20 @@ const isUser = async (id) => {
     }
 };
 
-export { isRole, isEmail, isUser };
+const isCategory = async (id) => {
+    const dbCategory = await Category.findById(id);
+
+    if (!dbCategory) {
+        throw new Error(`The category with id = ${id} does not exist`);
+    }
+};
+
+const isProduct = async (id) => {
+    const dbProduct = await Product.findById(id);
+
+    if (!dbProduct) {
+        throw new Error(`The product with id = ${id} does not exist`);
+    }
+};
+
+export { isRole, isEmail, isCategory, isProduct, isUser };

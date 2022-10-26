@@ -1,13 +1,13 @@
 import { request, response } from "express";
 
 const isAdmin = (req = request, res = response, next) => {
-    if (!req.user) {
+    if (!req.authenticatedUser) {
         return res.status(500).json({
             msg: "Verifying role without validating the token first",
         });
     }
 
-    const { role, name } = req.user;
+    const { role, name } = req.authenticatedUser;
 
     if (role !== "ADMIN_ROLE") {
         return res.status(401).json({
