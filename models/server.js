@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import fileUpload from "express-fileupload";
+import { createServer } from "http";
+import { Server as Socket } from "socket.io";
 import { usersRouter } from "../routes/usersRoutes.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { dbConnection } from "../database/config.js";
@@ -8,11 +10,14 @@ import { categoriesRouter } from "../routes/categoriesRoutes.js";
 import { productsRouter } from "../routes/productsRoutes.js";
 import { searchRouter } from "../routes/searchRoutes.js";
 import { uploadsRouter } from "../routes/uploadsRoutes.js";
+import { socketController } from "../sockets/socketController.js";
 
 export default class Server {
     constructor() {
         this.port = process.env.PORT;
         this.app = express();
+        this.server = createServer(this.app);
+        this.io = new Socket(this.server);
         this.paths = {
             users: "/api/users",
             auth: "/api/auth",
@@ -30,6 +35,9 @@ export default class Server {
 
         // My application routes
         this.routes();
+
+        // Sockets
+        this.sockets();
     }
 
     async connectToDb() {
@@ -58,8 +66,12 @@ export default class Server {
         this.app.use(this.paths.uploads, uploadsRouter);
     }
 
+    sockets() {
+        this.io.on("connection", (socket) => socketController(socket, this.io));
+    }
+
     run() {
-        this.app.listen(this.port, () =>
+        this.server.listen(this.port, () =>
             console.log("Server running on port", this.port)
         );
     }

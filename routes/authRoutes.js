@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { check } from "express-validator";
-import { googleSignIn, login } from "../controllers/authController.js";
+import {
+    googleSignIn,
+    login,
+    renewToken,
+} from "../controllers/authController.js";
 import { validateFields } from "../middlewares/validate-fields.js";
+import { validateJWT } from "../middlewares/validate-jwt.js";
 
 const authRouter = new Router();
 
@@ -23,5 +28,7 @@ authRouter.post(
     ],
     googleSignIn
 );
+
+authRouter.get("/", validateJWT, renewToken);
 
 export { authRouter };
