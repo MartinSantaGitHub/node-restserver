@@ -14,7 +14,7 @@ import { socketController } from "../sockets/socketController.js";
 
 export default class Server {
     constructor() {
-        this.port = process.env.PORT;
+        this.port = process.env.PORT || 3000;
         this.app = express();
         this.server = createServer(this.app);
         this.io = new Socket(this.server);
