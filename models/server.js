@@ -5,7 +5,7 @@ import { dbConnection } from "../database/config.js";
 
 export default class Server {
     constructor() {
-        this.port = process.env.PORT;
+        this.port = process.env.PORT || 3000;
         this.app = express();
         this.usersPath = "/api/users";
 
